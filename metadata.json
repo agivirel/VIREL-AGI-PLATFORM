@@ -1,0 +1,8 @@
+{
+  "name": "VIREL AGI Platform",
+  "description": "An interactive platform showcasing the capabilities of AGI Alliance Group's VIREL project, integrating various Gemini API functionalities for chat, live conversation, image/video generation and analysis, grounding, and TTS.",
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ]
+}
