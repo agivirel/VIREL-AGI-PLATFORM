@@ -3,6 +3,7 @@ import { geminiService } from '../services/geminiService';
 import { GenerativeModel } from '../types';
 import { GEMINI_MODEL_FLASH_LITE, GEMINI_MODEL_PRO } from '../constants';
 import { MarkdownRenderer } from './MarkdownRenderer'; // Fix: Changed to named import
+import { useLoading } from '../contexts/LoadingContext'; // Import useLoading
 
 interface GeminiPlaygroundFeatureProps {}
 
@@ -12,6 +13,7 @@ const GeminiPlaygroundFeature: React.FC<GeminiPlaygroundFeatureProps> = () => {
   const [response, setResponse] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { incrementLoading, decrementLoading } = useLoading(); // Use the loading hook
 
   const handleGenerateResponse = async () => {
     if (prompt.trim() === '') {
@@ -22,6 +24,7 @@ const GeminiPlaygroundFeature: React.FC<GeminiPlaygroundFeatureProps> = () => {
     setIsLoading(true);
     setError(null);
     setResponse(null);
+    incrementLoading(); // Start global loading
 
     try {
       const useThinkingMode = selectedModel === GEMINI_MODEL_PRO;
@@ -38,6 +41,7 @@ const GeminiPlaygroundFeature: React.FC<GeminiPlaygroundFeatureProps> = () => {
       setError(`Failed to get response: ${err.message || 'Unknown error.'}`);
     } finally {
       setIsLoading(false);
+      decrementLoading(); // Stop global loading
     }
   };
 

@@ -3,6 +3,7 @@ import { geminiService } from '../services/geminiService';
 import { ChatMessage, ChatMessageType, GenerativeModel, GroundingChunk } from '../types';
 import { GEMINI_MODEL_FLASH } from '../constants';
 import { v4 as uuidv4 } from 'uuid';
+import { useLoading } from '../contexts/LoadingContext';
 
 interface ChatFeatureProps {}
 
@@ -11,6 +12,7 @@ const ChatFeature: React.FC<ChatFeatureProps> = () => {
   const [input, setInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { incrementLoading, decrementLoading } = useLoading();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -38,6 +40,7 @@ const ChatFeature: React.FC<ChatFeatureProps> = () => {
     addMessage(ChatMessageType.USER, userMessage);
     setInput('');
     setIsLoading(true);
+    incrementLoading(); // Start global loading
 
     try {
       // Convert current chat messages (excluding info messages) to history format for Gemini.
@@ -55,6 +58,7 @@ const ChatFeature: React.FC<ChatFeatureProps> = () => {
       addMessage(ChatMessageType.ERROR, `Failed to get a response: ${error.message || 'Unknown error.'}`);
     } finally {
       setIsLoading(false);
+      decrementLoading(); // Stop global loading
     }
   };
 

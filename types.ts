@@ -17,13 +17,13 @@ export interface ChatMessage {
 
 export interface GroundingChunk {
   web?: {
-    uri: string;
-    title: string;
+    uri?: string;
+    title?: string;
   };
   maps?: {
-    uri: string;
-    title: string;
-    placeAnswerSources?: Array<{ reviewSnippets?: { uri: string } }>;
+    uri?: string;
+    title?: string;
+    placeAnswerSources?: Array<{ reviewSnippets?: { uri?: string } }>;
   };
 }
 
@@ -100,4 +100,11 @@ declare global {
   interface Window {
     aistudio: AIStudio;
   }
+}
+
+// Global Loading Context Type
+export interface LoadingContextType {
+  isLoading: boolean;
+  incrementLoading: () => void;
+  decrementLoading: () => void;
 }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { geminiService } from '../services/geminiService';
 import { AspectRatio } from '../types';
 import { DEFAULT_ASPECT_RATIO } from '../constants';
+import { useLoading } from '../contexts/LoadingContext'; // Import useLoading
 
 interface ImageGenerationFeatureProps {}
 
@@ -11,6 +12,7 @@ const ImageGenerationFeature: React.FC<ImageGenerationFeatureProps> = () => {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { incrementLoading, decrementLoading } = useLoading(); // Use the loading hook
 
   const handleGenerateImage = async () => {
     if (prompt.trim() === '') {
@@ -21,6 +23,7 @@ const ImageGenerationFeature: React.FC<ImageGenerationFeatureProps> = () => {
     setIsLoading(true);
     setError(null);
     setGeneratedImageUrl(null); // Clear previous image
+    incrementLoading(); // Start global loading
     try {
       const imageUrl = await geminiService.generateImage(prompt, aspectRatio);
       setGeneratedImageUrl(imageUrl);
@@ -29,6 +32,7 @@ const ImageGenerationFeature: React.FC<ImageGenerationFeatureProps> = () => {
       setError(`Failed to generate image: ${err.message || 'Unknown error.'}`);
     } finally {
       setIsLoading(false);
+      decrementLoading(); // Stop global loading
     }
   };
 

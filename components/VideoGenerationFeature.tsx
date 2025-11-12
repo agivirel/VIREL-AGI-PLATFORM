@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { geminiService, blobToBase64 } from '../services/geminiService';
+import { GeminiService } from '../services/geminiService'; // Fix: Import the GeminiService class
 import { AspectRatio, Resolution } from '../types';
 import { VIDEO_ASPECT_RATIOS, VIDEO_RESOLUTIONS } from '../constants';
+import { useLoading } from '../contexts/LoadingContext'; // Import useLoading
 
 // Declare global window.aistudio for API key selection
 // Fix: Removed redundant declare global block as it's defined in types.ts now.
@@ -18,6 +20,7 @@ const VideoGenerationFeature: React.FC<VideoGenerationFeatureProps> = () => {
   const [loadingMessage, setLoadingMessage] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [apiKeySelected, setApiKeySelected] = useState<boolean>(false);
+  const { incrementLoading, decrementLoading } = useLoading(); // Use the loading hook
 
   const checkAndSelectApiKey = useCallback(async () => {
     try {
@@ -77,11 +80,12 @@ const VideoGenerationFeature: React.FC<VideoGenerationFeatureProps> = () => {
     setLoadingMessage('Starting video generation...');
     setError(null);
     setGeneratedVideoUrl(null);
+    incrementLoading(); // Start global loading
 
     try {
       // Fix: Create a new GeminiService instance right before API call
       // to ensure it uses the most up-to-date API key from the dialog.
-      const localGeminiService = new geminiService.constructor();
+      const localGeminiService = new GeminiService(); // Fix: Directly instantiate the class
 
       let videoUrl: string;
       if (selectedImageFile) {
@@ -116,6 +120,7 @@ const VideoGenerationFeature: React.FC<VideoGenerationFeatureProps> = () => {
       setLoadingMessage('Video generation failed.');
     } finally {
       setIsLoading(false);
+      decrementLoading(); // Stop global loading
     }
   };
 

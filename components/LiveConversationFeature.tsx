@@ -17,6 +17,7 @@ import {
   LIVE_API_OUTPUT_SAMPLE_RATE,
   LIVE_API_SCRIPT_PROCESSOR_BUFFER_SIZE,
 } from '../constants';
+import { useLoading } from '../contexts/LoadingContext'; // Import useLoading
 
 interface LiveConversationFeatureProps {}
 
@@ -52,6 +53,7 @@ const LiveConversationFeature: React.FC<LiveConversationFeatureProps> = () => {
   const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set()); // to manage playing audio sources
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { incrementLoading, decrementLoading } = useLoading(); // Use the loading hook
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -108,6 +110,7 @@ const LiveConversationFeature: React.FC<LiveConversationFeatureProps> = () => {
   const startRecording = useCallback(async () => {
     setError(null);
     setStatusMessage('Starting...');
+    incrementLoading(); // Start global loading for connection setup
     try {
       streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -128,6 +131,7 @@ const LiveConversationFeature: React.FC<LiveConversationFeatureProps> = () => {
           console.debug('Live Session opened!');
           setStatusMessage('Recording...');
           setIsRecording(true);
+          decrementLoading(); // Stop global loading once session is open
 
           // Stream audio from the microphone to the model.
           scriptProcessorRef.current!.onaudioprocess = (audioProcessingEvent) => {
@@ -200,6 +204,7 @@ const LiveConversationFeature: React.FC<LiveConversationFeatureProps> = () => {
           console.error('Live Session error:', e);
           setError(`Live Session error: ${e.type}`);
           setStatusMessage('Error occurred.');
+          decrementLoading(); // Stop global loading on error
           stopRecording(); // Automatically stop on error
         },
         onclose: (e) => {
@@ -210,6 +215,8 @@ const LiveConversationFeature: React.FC<LiveConversationFeatureProps> = () => {
           } else {
             setStatusMessage('Conversation ended.');
           }
+          // The global loading should already be off from onopen or onerror.
+          // No decrementLoading needed here unless session setup failed before onopen was called.
           stopRecording(false); // Stop recording without resetting error
         },
       };
@@ -224,9 +231,10 @@ const LiveConversationFeature: React.FC<LiveConversationFeatureProps> = () => {
       console.error('Failed to start recording or connect to Live API:', err);
       setError(`Failed to start: ${err.message}`);
       setStatusMessage('Error starting conversation.');
+      decrementLoading(); // Stop global loading on connection error
       stopRecording(false); // Ensure all resources are stopped
     }
-  }, [currentInputTranscription, currentOutputTranscription, stopRecording]);
+  }, [currentInputTranscription, currentOutputTranscription, stopRecording, incrementLoading, decrementLoading]);
 
   const handleToggleRecording = () => {
     if (isRecording) {

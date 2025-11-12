@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { geminiService, blobToBase64 } from '../services/geminiService';
 import { GEMINI_MODEL_FLASH, GEMINI_MODEL_PRO } from '../constants';
 import { MarkdownRenderer } from './MarkdownRenderer'; // Fix: Changed to named import
+import { useLoading } from '../contexts/LoadingContext'; // Import useLoading
 
 interface ContentAnalysisFeatureProps {}
 
@@ -10,6 +11,7 @@ const ContentAnalysisFeature: React.FC<ContentAnalysisFeatureProps> = () => {
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { incrementLoading, decrementLoading } = useLoading(); // Use the loading hook
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -28,6 +30,7 @@ const ContentAnalysisFeature: React.FC<ContentAnalysisFeatureProps> = () => {
     setIsLoading(true);
     setError(null);
     setAnalysisResult(null);
+    incrementLoading(); // Start global loading
 
     try {
       const base64Image = await blobToBase64(selectedFile);
@@ -40,6 +43,7 @@ const ContentAnalysisFeature: React.FC<ContentAnalysisFeatureProps> = () => {
       setError(`Failed to analyze image: ${err.message || 'Unknown error.'}`);
     } finally {
       setIsLoading(false);
+      decrementLoading(); // Stop global loading
     }
   };
 
@@ -52,6 +56,7 @@ const ContentAnalysisFeature: React.FC<ContentAnalysisFeatureProps> = () => {
     setIsLoading(true);
     setError(null);
     setAnalysisResult(null);
+    incrementLoading(); // Start global loading
 
     try {
       const base64Video = await blobToBase64(selectedFile);
@@ -70,6 +75,7 @@ const ContentAnalysisFeature: React.FC<ContentAnalysisFeatureProps> = () => {
       setError(`Failed to analyze video: ${err.message || 'Unknown error.'}`);
     } finally {
       setIsLoading(false);
+      decrementLoading(); // Stop global loading
     }
   };
 

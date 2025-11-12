@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { geminiService, getGeolocation } from '../services/geminiService';
 import { GroundingChunk } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer'; // Fix: Changed to named import
+import { useLoading } from '../contexts/LoadingContext'; // Import useLoading
 
 interface GroundingFeatureProps {}
 
@@ -16,9 +17,11 @@ const GroundingFeature: React.FC<GroundingFeatureProps> = () => {
     null,
   );
   const [locationLoading, setLocationLoading] = useState<boolean>(false);
+  const { incrementLoading, decrementLoading } = useLoading(); // Use the loading hook
 
   const fetchUserLocation = useCallback(async () => {
     setLocationLoading(true);
+    // Don't use global loading for geolocation as it's a browser API, not a Gemini API call.
     const location = await getGeolocation();
     setUserLocation(location);
     setLocationLoading(false);
@@ -43,6 +46,7 @@ const GroundingFeature: React.FC<GroundingFeatureProps> = () => {
     setError(null);
     setResponse(null);
     setGroundingUrls([]);
+    incrementLoading(); // Start global loading
 
     try {
       let result;
@@ -54,6 +58,7 @@ const GroundingFeature: React.FC<GroundingFeatureProps> = () => {
             'Cannot perform Maps grounding without your location. Please enable geolocation or refresh.',
           );
           setIsLoading(false);
+          decrementLoading(); // Stop global loading if we can't proceed
           return;
         }
         result = await geminiService.mapsGrounding(
@@ -69,6 +74,7 @@ const GroundingFeature: React.FC<GroundingFeatureProps> = () => {
       setError(`Failed to get grounding response: ${err.message || 'Unknown error.'}`);
     } finally {
       setIsLoading(false);
+      decrementLoading(); // Stop global loading
     }
   };
 

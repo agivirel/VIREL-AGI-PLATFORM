@@ -5,6 +5,7 @@ import {
   Modality,
   Type,
   FunctionDeclaration,
+  Content, // Fix: Import Content type for chat history
 } from '@google/genai';
 import {
   GenerativeModel,
@@ -161,7 +162,7 @@ export class GeminiService {
   }
 
   // Chat functionality
-  public async sendMessage(model: GenerativeModel, history: GenerateContentParameters['history'], message: string) {
+  public async sendMessage(model: GenerativeModel, history: Content[], message: string) { // Fix: Changed history type to Content[]
     const ai = this.getAiInstance();
     const chat = ai.chats.create({
       model,
@@ -361,7 +362,7 @@ export class GeminiService {
           tools: [{ googleSearch: {} }],
         },
       });
-      const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      const groundingChunks: GroundingChunk[] = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
       return { text: response.text, groundingUrls: groundingChunks };
     } catch (error) {
       console.error('Error during search grounding:', error);
@@ -392,7 +393,7 @@ export class GeminiService {
           },
         },
       });
-      const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      const groundingChunks: GroundingChunk[] = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
       return { text: response.text, groundingUrls: groundingChunks };
     } catch (error) {
       console.error('Error during maps grounding:', error);

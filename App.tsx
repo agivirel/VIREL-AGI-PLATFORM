@@ -10,6 +10,8 @@ import ContentAnalysisFeature from './components/ContentAnalysisFeature';
 import GroundingFeature from './components/GroundingFeature';
 import TTSFeature from './components/TTSFeature';
 import GeminiPlaygroundFeature from './components/GeminiPlaygroundFeature';
+import { LoadingProvider } from './contexts/LoadingContext';
+import LoadingBar from './components/LoadingBar';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('memorandum');
@@ -44,13 +46,16 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header activeTab={activeTab} onTabChange={handleTabChange} />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        {renderFeature()}
-      </main>
-      <Footer />
-    </div>
+    <LoadingProvider>
+      <div className="min-h-screen flex flex-col">
+        <LoadingBar />
+        <Header activeTab={activeTab} onTabChange={handleTabChange} />
+        <main className="flex-1 container mx-auto px-4 py-8">
+          {renderFeature()}
+        </main>
+        <Footer />
+      </div>
+    </LoadingProvider>
   );
 };
 

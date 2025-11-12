@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { geminiService, decodeAudioData, decode } from '../services/geminiService';
 import { DEFAULT_TTS_VOICE, TTS_VOICE_NAMES, LIVE_API_OUTPUT_SAMPLE_RATE, LIVE_API_AUDIO_CHANNELS } from '../constants';
 import { TTSVoiceName } from '../constants'; // Fix: Import TTSVoiceName from constants
+import { useLoading } from '../contexts/LoadingContext'; // Import useLoading
 
 interface TTSFeatureProps {}
 
@@ -13,6 +14,7 @@ const TTSFeature: React.FC<TTSFeatureProps> = () => {
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const { incrementLoading, decrementLoading } = useLoading(); // Use the loading hook
 
   const handleGenerateAndPlaySpeech = async () => {
     if (text.trim() === '') {
@@ -22,6 +24,7 @@ const TTSFeature: React.FC<TTSFeatureProps> = () => {
 
     setIsLoading(true);
     setError(null);
+    incrementLoading(); // Start global loading
 
     try {
       if (audioSourceRef.current) {
@@ -56,6 +59,7 @@ const TTSFeature: React.FC<TTSFeatureProps> = () => {
       setError(`Failed to generate speech: ${err.message || 'Unknown error.'}`);
     } finally {
       setIsLoading(false);
+      decrementLoading(); // Stop global loading
     }
   };
 
