@@ -27,6 +27,9 @@ RUN npm install --include=dev
 # Copy application code
 COPY . .
 
+RUN --mount=type=secret,id=SECRET_API_KEY \
+    echo "GEMINI_API_KEY=$(cat /run/secrets/SECRET_API_KEY)" > .env
+
 # Build application
 RUN npm run build
 

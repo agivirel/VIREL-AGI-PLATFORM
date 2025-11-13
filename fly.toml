@@ -7,6 +7,10 @@ app = 'virel-agi-platform'
 primary_region = 'iad'
 
 [build]
+  [build.secrets]
+    # This creates a file at /run/secrets/SECRET_API_KEY
+    # containing the value of your "GEMINI_API_KEY" secret.
+    SECRET_API_KEY = "env(GEMINI_API_KEY)"
 
 [http_service]
   internal_port = 80
